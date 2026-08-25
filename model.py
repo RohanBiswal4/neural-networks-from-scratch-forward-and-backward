@@ -89,8 +89,28 @@ def make_activation(kind='relu'):
     D['backward']=backward
     return D
 
-# Step 5 - initialize_weights (not yet solved)
-# TODO: implement
+# Step 5 - initialize_weights
+def initialize_weights(in_dim, out_dim, scheme='he'):
+    """Return (W, b) for a dense layer.
+
+    Inputs:
+      in_dim: int fan-in
+      out_dim: int fan-out
+      scheme: str initialization family (default 'he')
+
+    Returns:
+      W: np.ndarray shape (in_dim, out_dim), finite, symmetry-breaking,
+         scale stable with depth (fan-in dependent)
+      b: np.ndarray shape (out_dim,), near zero
+    """
+    # TODO: your approach here
+    if scheme=='he':
+      sigma=np.sqrt(2/in_dim)
+    elif scheme == 'Xavier' or scheme=='Glorot':
+      sigma==1/np.sqrt(in_dim)
+    b=np.zeros((out_dim))
+    W=np.random.normal(loc=0,scale=sigma,size=(in_dim,out_dim))
+    return W,b
 
 # Step 6 - make_loss (not yet solved)
 # TODO: implement
