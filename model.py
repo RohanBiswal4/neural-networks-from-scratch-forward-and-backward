@@ -18,8 +18,13 @@ def numerical_gradient(f, x, eps=1e-5):
         grad[idx]= (f(f_p)-f(f_m))/(2*eps)
     return grad
 
-# Step 2 - gradient_check (not yet solved)
-# TODO: implement
+# Step 2 - gradient_check
+def gradient_check(analytic_grad, numeric_grad, tol=1e-5):
+    # TODO: Return max relative error between analytic and numeric gradients.
+    a=np.abs(analytic_grad)
+    b=np.abs(numeric_grad)
+    rel= np.max(np.abs(analytic_grad-numeric_grad)/np.maximum(np.maximum(a,b),tol))
+    return rel
 
 # Step 3 - make_dense (not yet solved)
 # TODO: implement
