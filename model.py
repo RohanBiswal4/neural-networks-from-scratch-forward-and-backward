@@ -112,8 +112,34 @@ def initialize_weights(in_dim, out_dim, scheme='he'):
     W=np.random.normal(loc=0,scale=sigma,size=(in_dim,out_dim))
     return W,b
 
-# Step 6 - make_loss (not yet solved)
-# TODO: implement
+# Step 6 - make_loss
+def make_loss(kind='cross_entropy'):
+    """Return a classification loss_fn(logits, labels) -> (loss, d_logits).
+
+    Inputs to loss_fn:
+      logits: (batch, C) float array of raw class scores
+      labels: (batch,) int array of class indices in [0, C)
+    Outputs:
+      loss: Python float, mean scalar loss over the batch (finite)
+      d_logits: (batch, C) gradient of loss w.r.t. logits (finite)
+    Must pass gradient_check, be minimized by confident correct predictions,
+    and stay finite under saturated logits.
+    """
+    def softmax(x):
+      m=np.max(x,axis=1,keepdims=True)
+      x1=x-m
+      x1=np.exp(x1)
+      s=np.sum(x1,axis=1,keepdims=True)
+      return x1/s 
+    def loss_fn(logits,labels):
+      B=len(labels)
+      X=softmax(logits)
+      grad=np.zeros_like(logits)
+      loss=np.mean(-np.log(X[np.arange(len(labels)), labels]))
+      grad[np.arange(B),labels]=(X[np.arange(B), labels]-1)/B
+      grad=np.where(grad==0,X/B,grad)
+      return loss,grad
+    return loss_fn
 
 # Step 7 - make_sequential (not yet solved)
 # TODO: implement
