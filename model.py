@@ -104,6 +104,7 @@ def initialize_weights(in_dim, out_dim, scheme='he'):
       b: np.ndarray shape (out_dim,), near zero
     """
     # TODO: your approach here
+    sigma=1
     if scheme=='he':
       sigma=np.sqrt(2/in_dim)
     elif scheme == 'Xavier' or scheme=='Glorot':
@@ -292,8 +293,66 @@ def train(model, loss_fn, optimizer, x, y, epochs, batch_size, seed=0):
       history.append(loss/k)
     return history
 
-# Step 12 - design_network (not yet solved)
-# TODO: implement
+# Step 12 - design_network
+def design_network(input_dim, num_classes, seed=0):
+    """Design and train a net that solves a nonlinear classification task.
+    Inputs:
+      input_dim: int, feature dimension
+      num_classes: int, number of classes
+      seed: int, RNG seed for reproducibility
+
+    Returns:
+      model: trained sequential model (forward/backward/params)
+      metrics: dict with
+        'accuracy': float >= 0.90 on an evaluation set,
+        'x': np.ndarray (N, input_dim) eval features (N >= 50),
+        'y': np.ndarray (N,) integer eval labels.
+      The eval set (x, y) must not be linearly separable to high accuracy
+      (< 0.82 for a linear classifier), and the model's true accuracy on
+      it must match metrics['accuracy'] and be >= 0.90.
+    """
+    # TODO: your approach here
+    rng=np.random.default_rng(seed)
+    def make_xor_dataset(n, seed=0):
+      X = rng.normal(0, 0.2, size=(n, 2))
+      quadrant = rng.integers(0, 4, size=n)
+      signs = np.array([
+          [-1, -1],
+          [ 1,  1],
+          [-1,  1],
+          [ 1, -1]
+      ])
+      X += signs[quadrant]
+      y = (X[:, 0] * X[:, 1] < 0).astype(int)
+      return X, y
+    X,y=make_xor_dataset(1000, seed)
+    idx = rng.permutation(len(y))
+    X = X[idx]
+    y = y[idx]
+    x_train=X[:800]
+    y_train=y[:800]
+    x_eval=X[800:]
+    y_eval=y[800:]
+    def he_init(in_dim, out_dim):
+      return initialize_weights(in_dim, out_dim, scheme='he')
+    weight_init_fn=he_init
+    layer1=make_dense(input_dim, 32, weight_init_fn)
+    layer2=make_activation(kind='relu')
+    layer3=make_dense(32, 64, weight_init_fn)
+    layer4=make_activation(kind='relu')
+    layer5=make_dense(64, num_classes, weight_init_fn)
+    layers=[layer1,layer2,layer3,layer4,layer5]
+    loss_fn=make_loss(kind='cross_entropy')
+    model=make_sequential(layers)
+    optimizer=make_optimizer(model['params'], lr=1e-2, kind='sgd')
+    history=train(model, loss_fn, optimizer, x_train, y_train, 1000, 64, seed)
+    logits,_=model['forward'](x_eval)
+    pred=np.argmax(logits,axis=1)
+    acc=np.sum(pred==y_eval)/len(y_eval)
+    metrics={'accuracy':acc,
+              'x':x_eval,
+              'y':y_eval}
+    return model,metrics
 
 # Step 13 - improve_generalization (not yet solved)
 # TODO: implement
