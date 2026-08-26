@@ -313,8 +313,10 @@ def design_network(input_dim, num_classes, seed=0):
     """
     # TODO: your approach here
     rng=np.random.default_rng(seed)
-    def make_xor_dataset(n, seed=0):
-      X = rng.normal(0, 0.2, size=(n, 2))
+    def make_xor_dataset(n, input_dim, rng):
+      # Generate exactly input_dim features
+      X = rng.normal(0, 0.2, size=(n, input_dim))
+      # Randomly choose one of four XOR quadrants
       quadrant = rng.integers(0, 4, size=n)
       signs = np.array([
           [-1, -1],
@@ -322,10 +324,12 @@ def design_network(input_dim, num_classes, seed=0):
           [-1,  1],
           [ 1, -1]
       ])
-      X += signs[quadrant]
+      # Apply XOR structure only to the first two features
+      X[:, :2] += signs[quadrant]
+      # Label based on which XOR region the point belongs to
       y = (X[:, 0] * X[:, 1] < 0).astype(int)
       return X, y
-    X,y=make_xor_dataset(1000, seed)
+    X,y=make_xor_dataset(1000, input_dim,rng)
     idx = rng.permutation(len(y))
     X = X[idx]
     y = y[idx]
