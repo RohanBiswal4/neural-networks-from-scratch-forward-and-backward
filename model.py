@@ -279,6 +279,10 @@ def train(model, loss_fn, optimizer, x, y, epochs, batch_size, seed=0):
     history=[]
     n=len(y)
     k=n//batch_size
+    idx=np.arange(n)
+    rng.shuffle(idx)
+    x=x[idx]
+    y=y[idx]
     for t in range(epochs):
       loss=0.00
       for i in range(0,n,batch_size):
